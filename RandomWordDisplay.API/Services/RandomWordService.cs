@@ -72,6 +72,7 @@ namespace RandomWordDisplay.API.Services
             }
 
             _commandTimeRemainingMilliseconds = 0;
+            CurrentWordSelected = "";
             CommandRunning = false;
             _stopwatch.Stop();
         }
