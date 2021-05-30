@@ -39,7 +39,6 @@ namespace RandomWordDisplay.API.Services
             WordList = wordList.ToList();
             WordList.Shuffle();
 
-            _commandTimeRemainingMilliseconds = TotalCommandTime;
             _millisecondDelay = TotalCommandTime / WordList.Count;
             CommandRunning = true;
             return true;
@@ -51,21 +50,14 @@ namespace RandomWordDisplay.API.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (!CommandRunning)
+                if (!CommandRunning || WordList.Count == 0 || _stopwatch.ElapsedMilliseconds > TotalCommandTime)
                 {
                     break;
                 }
 
-                if (WordList.Count == 0 || _stopwatch.ElapsedMilliseconds > TotalCommandTime)
-                {
-                    break;
-                }
-
-                if (_commandTimeRemainingMilliseconds > 0)
                 {
                     CurrentWordSelected = WordList?[^1] ?? String.Empty;
                     WordList.RemoveAt(WordList.Count - 1);
-                    _commandTimeRemainingMilliseconds -= _millisecondDelay;
                 }
 
                 await Task.Delay(_millisecondDelay, stoppingToken);
