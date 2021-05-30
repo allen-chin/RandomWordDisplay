@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RandomWordDisplay.API.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +12,9 @@ namespace RandomWordDisplay.API.Services
 {
     public class RandomWordService : BackgroundService, IRandomWordService
     {
-        public const int TotalCommandTime = 5_000;
+        public const int TotalCommandTime = 60_000;
         private readonly ILogger<RandomWordService> _logger;
+        private readonly Stopwatch _stopwatch = new();
 
         public RandomWordService(ILogger<RandomWordService> logger)
         {
@@ -20,7 +22,7 @@ namespace RandomWordDisplay.API.Services
         }
 
         public bool CommandRunning { get; private set; }
-        public int CommandTimeRemaining => _commandTimeRemainingMilliseconds / 1000;
+        public int CommandTimeRemaining => (int)Math.Max(TotalCommandTime - _stopwatch.ElapsedMilliseconds, 0) / 1000;
         public string CurrentWordSelected { get; private set; }
         public List<string> WordList { get; private set; }
 
@@ -29,7 +31,7 @@ namespace RandomWordDisplay.API.Services
 
         public bool Configure(string[] wordList)
         {
-            if (CommandRunning)
+            if (CommandRunning || wordList is null || wordList.Length == 0)
             {
                 return false;
             }
@@ -37,26 +39,26 @@ namespace RandomWordDisplay.API.Services
             WordList = wordList.ToList();
             WordList.Shuffle();
 
-            _commandTimeRemainingMilliseconds = WordList?.Count > 0 ? TotalCommandTime : 0;
-            _millisecondDelay = WordList?.Count > 0 ? TotalCommandTime / WordList.Count : 1000;
+            _commandTimeRemainingMilliseconds = TotalCommandTime;
+            _millisecondDelay = TotalCommandTime / WordList.Count;
             CommandRunning = true;
             return true;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _stopwatch.Restart();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (!CommandRunning)
                 {
-                    return;
+                    break;
                 }
 
-                if (WordList.Count == 0 || _commandTimeRemainingMilliseconds < _millisecondDelay)
+                if (WordList.Count == 0 || _stopwatch.ElapsedMilliseconds > TotalCommandTime)
                 {
-                    _commandTimeRemainingMilliseconds = 0;
-                    CommandRunning = false;
-                    return;
+                    break;
                 }
 
                 if (_commandTimeRemainingMilliseconds > 0)
@@ -68,6 +70,10 @@ namespace RandomWordDisplay.API.Services
 
                 await Task.Delay(_millisecondDelay, stoppingToken);
             }
+
+            _commandTimeRemainingMilliseconds = 0;
+            CommandRunning = false;
+            _stopwatch.Stop();
         }
     }
 }
