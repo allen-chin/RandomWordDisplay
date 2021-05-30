@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using RandomWordDisplay.API.Services;
+using System;
 
 namespace RandomWordDisplay.API
 {
@@ -20,6 +21,16 @@ namespace RandomWordDisplay.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
+                    });
+            });
+
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -41,6 +52,8 @@ namespace RandomWordDisplay.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
