@@ -26,7 +26,8 @@ namespace RandomWordDisplay.API
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
+                        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                               .AllowAnyHeader();
                     });
             });
 
