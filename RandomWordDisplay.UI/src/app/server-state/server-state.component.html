@@ -1,0 +1,7 @@
+<h2>Server State</h2>
+
+<ul class="heroes">
+    <li *ngFor="let state of serverState | keyvalue">
+        <span class="state-item">{{state.key}}: {{state.value}}</span>
+    </li>
+</ul>
