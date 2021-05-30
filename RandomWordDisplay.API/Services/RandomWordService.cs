@@ -10,8 +10,14 @@ using System.Threading.Tasks;
 
 namespace RandomWordDisplay.API.Services
 {
+    /// <summary>
+    /// A service that selects a random word from the given list of words and rotates through the list in a 60 second cycle. 
+    /// </summary>
     public class RandomWordService : BackgroundService, IRandomWordService
     {
+        /// <summary>
+        /// Total time for a command in milliseconds.
+        /// </summary>
         public const int TotalCommandTime = 60_000;
         private readonly ILogger<RandomWordService> _logger;
         private readonly Stopwatch _stopwatch = new();
@@ -26,9 +32,14 @@ namespace RandomWordDisplay.API.Services
         public string CurrentWordSelected { get; private set; }
         public List<string> WordList { get; private set; }
 
-        private int _commandTimeRemainingMilliseconds;
+        /// <summary>
+        /// Calculated milliseconds of delay between each execution in ExecuteAsync.
+        /// </summary>
         private int _millisecondDelay { get; set; }
 
+        /// <summary>
+        /// This method configures the service by resetting the stopwatch, shuffling the new word list, and computing the shared time for each word.
+        /// </summary>
         public bool Configure(string[] wordList)
         {
             if (CommandRunning || wordList is null || wordList.Length == 0)
@@ -55,6 +66,7 @@ namespace RandomWordDisplay.API.Services
                     break;
                 }
 
+                if (_stopwatch.ElapsedMilliseconds + _millisecondDelay < TotalCommandTime)
                 {
                     CurrentWordSelected = WordList?[^1] ?? String.Empty;
                     WordList.RemoveAt(WordList.Count - 1);
@@ -63,7 +75,6 @@ namespace RandomWordDisplay.API.Services
                 await Task.Delay(_millisecondDelay, stoppingToken);
             }
 
-            _commandTimeRemainingMilliseconds = 0;
             CurrentWordSelected = "";
             CommandRunning = false;
             _stopwatch.Stop();
