@@ -25,6 +25,7 @@ namespace RandomWordDisplay.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RandomWordDisplay.API", Version = "v1" });
             });
+            services.AddSingleton<IRandomWordService, RandomWordService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
