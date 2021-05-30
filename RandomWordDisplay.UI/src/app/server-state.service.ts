@@ -9,7 +9,7 @@ import { ServerState } from './server-state.model'
   providedIn: 'root'
 })
 export class ServerStateService {
-  private baseUrl = "https://localhost:5000/api";
+  private baseUrl = "https://localhost:5001/api";
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
