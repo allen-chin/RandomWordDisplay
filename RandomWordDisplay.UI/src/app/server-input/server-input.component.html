@@ -1,0 +1,15 @@
+<h2>Server Input</h2>
+
+<p>Please enter a list of words, separated by either spaces or commas.</p>
+
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+    <div class="form-group">
+        <label for="words">Word List: </label>
+        <input type="text" class="form-control" id="words" required [(ngModel)]="words" name="words" #name="ngModel" />
+        <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
+            At least one word is required
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success" [disabled]="!form.form.valid">Start</button>
+</form>
