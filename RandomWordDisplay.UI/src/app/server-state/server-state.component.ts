@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { timer } from 'rxjs';
+import { switchMap, retry, share, takeUntil } from 'rxjs/operators';
 import { ServerState } from '../server-state.model';
 import { ServerStateService } from '../server-state.service';
+
 
 @Component({
   selector: 'app-server-state',
@@ -17,6 +20,8 @@ export class ServerStateComponent implements OnInit {
   }
 
   getServerState(): void {
-    this.serverStateService.getServerState().subscribe(serverState => this.serverState = serverState);
+    timer(1, 1000).pipe(
+      switchMap(() => this.serverStateService.getServerState())
+    ).subscribe(serverState => this.serverState = serverState);
   }
 }
